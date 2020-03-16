@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  lambda practice golang
+
+Parameters:
+  LinkTableName:
+    Type: String
+
+Resources:
+  Login:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: artifact
+      Handler: login
+      Runtime: go1.x
+      Policies: AmazonDynamoDBFullAccess
+      Timeout: 10
+      Tracing: Active
+      Events:
+        PostEvent:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: post
+      Environment:
+        Variables:
+          LINK_TABLE: !Ref LinkTableName
+  LoginGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${Login}
+      RetentionInDays: 1
+
+Outputs:
+  ApiUrl:
+    Desctiption: "API endpoint URL for Prod environment"
+    Value: !Sub "https://${ServerlessRestApi\}.execute-api.${AWS::Region\}.amazonaws.com/Prod/links"
