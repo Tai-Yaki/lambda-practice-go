@@ -36,7 +36,6 @@ func main() {
 	lambda.Start(handler)
 }
 
-// CreateUser func　ユーザの作成
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	_, err := parseRequest(request)
 	if err != nil {
@@ -54,7 +53,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		), nil
 	}
 
-	user := &User{
+	user := db.User{
 		UserID:      xid.New().String(),
 		Name:        request.PathParameters["name"],
 		Email:       request.PathParameters["email"],
@@ -65,15 +64,13 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	_, err = DynamoDB.PutItem(user)
 	if err != nil {
-		fmt.Println("err")
-		panic(err.Error())
 		return response(
 			http.StatusInternalServerError,
 			errorResponseBody(err.Error()),
 		), nil
 	}
 
-	body, err := responseBody(*user)
+	body, err := responseBody(user)
 	if err != nil {
 		return response(
 			http.StatusInternalServerError,
@@ -116,7 +113,7 @@ func errorResponseBody(msg string) string {
 	return fmt.Sprintf("{\"message\":\"%s\"}", msg)
 }
 
-func responseBody(user User) (string, error) {
+func responseBody(user db.User) (string, error) {
 	response, err := json.Marshal(user)
 	if err != nil {
 		return "", nil
