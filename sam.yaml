@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: lambda practice golang
+Parameters:
+  LinkTableName:
+    Type: String
+Resources:
+  Login:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/c86922322fcc71413109154f222db611
+      Handler: login
+      Runtime: go1.x
+      Policies: AmazonDynamoDBFullAccess
+      Timeout: 10
+      Tracing: Active
+      Events:
+        PostEvent:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: post
+      Environment:
+        Variables:
+          LINK_TABLE:
+            Ref: LinkTableName
+  LoginGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${Login}
+      RetentionInDays: 1
+  User:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/c86922322fcc71413109154f222db611
+      Handler: user
+      Runtime: go1.x
+      Policies: AmazonDynamoDBFullAccess
+      Timeout: 10
+      Tracing: Active
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: get
+Outputs:
+  ApiUrl:
+    Description: API endpoint URL for Prod environment
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/links

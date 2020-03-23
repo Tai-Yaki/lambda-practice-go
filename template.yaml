@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  lambda practice golang
+Description: lambda practice golang
 
 Parameters:
   LinkTableName:
@@ -35,7 +34,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: artifact
-      handler: user
+      Handler: user
       Runtime: go1.x
       Policies: AmazonDynamoDBFullAccess
       Timeout: 10
@@ -49,5 +48,5 @@ Resources:
 
 Outputs:
   ApiUrl:
-    Desctiption: "API endpoint URL for Prod environment"
-    Value: !Sub https://${ServerlessRestApi\}.execute-api.${AWS::Region\}.amazonaws.com/Prod/links
+    Description: "API endpoint URL for Prod environment"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/links"
