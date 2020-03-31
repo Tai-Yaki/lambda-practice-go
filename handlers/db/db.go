@@ -29,7 +29,7 @@ type User struct {
 }
 
 func New() DB {
-	db := dynamo.New(session.New(), &aws.Config{Region: aws.String("ap-northeast-1")})
+	db := dynamo.New(session.New(), &aws.Config{Region: aws.String(Region)})
 
 	return DB{Instance: db}
 }
