@@ -8,12 +8,12 @@ build: build-user
 .PHONY: build
 
 build-login:
-	GOARCH=amd64 GOOS=linux go build -o artifact/login ./handlers/login
+	GOARCH=amd64 GOOS=linux go build -o artifact/login ./handlers/login/main
 .PHONY: build-login
 
 # build-user: build-user-create build-user-show build-user-index build-user-update build-user-delete
 # .PHONY: build-user
-build-user: build-user-create
+build-user: build-user-create build-user-show
 .PHONY: build-user
 
 build-user-create:

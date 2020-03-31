@@ -8,7 +8,7 @@ Resources:
   Login:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/c86922322fcc71413109154f222db611
+      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/35b9f82e43d5a71db71fc71f6546b8dc
       Handler: login
       Runtime: go1.x
       Policies: AmazonDynamoDBFullAccess
@@ -30,23 +30,58 @@ Resources:
       LogGroupName:
         Fn::Sub: /aws/lambda/${Login}
       RetentionInDays: 1
-  User:
+  CreateUser:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/c86922322fcc71413109154f222db611
-      Handler: user
+      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/35b9f82e43d5a71db71fc71f6546b8dc
+      Handler: user/create
       Runtime: go1.x
       Policies: AmazonDynamoDBFullAccess
       Timeout: 10
       Tracing: Active
       Events:
-        GetEvent:
+        PostEvent:
           Type: Api
           Properties:
             Path: /user
+            Method: post
+      Environment:
+        Variables:
+          LINK_TABLE:
+            Ref: LinkTableName
+  CreateUserGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${CreateUser}
+      RetentionInDays: 1
+  GetUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/35b9f82e43d5a71db71fc71f6546b8dc
+      Handler: user/show
+      Runtime: go1.x
+      Policies: AmazonDynamoDBFullAccess
+      Timeout: 10
+      Tracing: Active
+      Events:
+        PostEvent:
+          Type: Api
+          Properties:
+            Path: /user/{userID}
             Method: get
+      Environment:
+        Variables:
+          LINK_TABLE:
+            Ref: LinkTableName
+  GetUserGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${GetUser}
+      RetentionInDays: 1
 Outputs:
   ApiUrl:
     Description: API endpoint URL for Prod environment
     Value:
-      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/links
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod

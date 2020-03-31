@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -29,29 +30,27 @@ type User struct {
 }
 
 func New() DB {
-	db := dynamo.New(session.New(), &aws.Config{
-		Region: aws.String(Region),
-	})
+	db := dynamo.New(session.New(), &aws.Config{Region: aws.String(Region)})
 
 	return DB{Instance: db}
 }
 
-func (db DB) GetItem(UserID string) (interface{}, error) {
+func (db DB) GetItem(UserID string) (User, error) {
 	var result User
 	table := db.Instance.Table(LinkTableName)
 	err := table.Get("UserID", UserID).One(&result)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to get item")
+		return result, errors.Wrapf(err, "failed to get item")
 	}
-
+	fmt.Println("LinkTableName: " + LinkTableName)
 	return result, nil
 }
 
-func (db DB) PutItem(user User) (interface{}, error) {
+func (db DB) PutItem(user User) (User, error) {
 	table := db.Instance.Table(LinkTableName)
 	err := table.Put(user).Run()
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to put item")
+		return user, errors.Wrapf(err, "failed to put item")
 	}
 
 	return user, nil

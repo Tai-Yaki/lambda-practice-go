@@ -30,23 +30,54 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${Login}
       RetentionInDays: 1
-  User:
+  CreateUser:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: artifact
-      Handler: user
+      Handler: user/create
       Runtime: go1.x
       Policies: AmazonDynamoDBFullAccess
       Timeout: 10
       Tracing: Active
       Events:
-        GetEvent:
+        PostEvent:
           Type: Api
           Properties:
             Path: /user
+            Method: post
+      Environment:
+        Variables:
+          LINK_TABLE: !Ref LinkTableName
+  CreateUserGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${CreateUser}
+      RetentionInDays: 1
+  GetUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: artifact
+      Handler: user/show
+      Runtime: go1.x
+      Policies: AmazonDynamoDBFullAccess
+      Timeout: 10
+      Tracing: Active
+      Events:
+        PostEvent:
+          Type: Api
+          Properties:
+            Path: /user/{userID}
             Method: get
+      Environment:
+        Variables:
+          LINK_TABLE: !Ref LinkTableName
+  GetUserGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetUser}
+      RetentionInDays: 1
 
 Outputs:
   ApiUrl:
     Description: "API endpoint URL for Prod environment"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/links"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
