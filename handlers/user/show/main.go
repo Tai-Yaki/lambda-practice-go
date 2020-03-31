@@ -40,15 +40,6 @@ func main() {
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	// parsedRequest, err := parseUrlRequest(request)
-	// parsedRequest := request.PathParameters
-	// if err != nil {
-	// 	return response(
-	// 		http.StatusBadRequest,
-	// 		errorResponseBody(err.Error()),
-	// 	), nil
-	// }
-
 	user, err := DynamoDB.GetItem(request.PathParameters["userID"])
 	if err != nil {
 		return response(

@@ -1,7 +1,6 @@
 package db
 
 import (
-	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -11,8 +10,8 @@ import (
 )
 
 var (
-	LinkTableName = os.Getenv("LINK_TABLE")
-	Region        = os.Getenv("REGION")
+	LinkTableName = "User"
+	Region        = "ap-northeast-1"
 )
 
 type DB struct {
