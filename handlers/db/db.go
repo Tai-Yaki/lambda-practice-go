@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -30,7 +29,7 @@ type User struct {
 }
 
 func New() DB {
-	db := dynamo.New(session.New(), &aws.Config{Region: aws.String(Region)})
+	db := dynamo.New(session.New(), &aws.Config{Region: aws.String("ap-northeast-1")})
 
 	return DB{Instance: db}
 }
@@ -42,7 +41,6 @@ func (db DB) GetItem(UserID string) (User, error) {
 	if err != nil {
 		return result, errors.Wrapf(err, "failed to get item")
 	}
-	fmt.Println("LinkTableName: " + LinkTableName)
 	return result, nil
 }
 
