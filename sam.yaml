@@ -8,7 +8,7 @@ Resources:
   Login:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/103517aea93a56473ea819b635f3ef40
+      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/e87a87a195fb3fa4f4804d3a592fed39
       Handler: login
       Runtime: go1.x
       Policies: AmazonDynamoDBFullAccess
@@ -33,7 +33,7 @@ Resources:
   CreateUser:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/103517aea93a56473ea819b635f3ef40
+      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/e87a87a195fb3fa4f4804d3a592fed39
       Handler: user/create
       Runtime: go1.x
       Policies: AmazonDynamoDBFullAccess
@@ -58,7 +58,7 @@ Resources:
   GetUser:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/103517aea93a56473ea819b635f3ef40
+      CodeUri: s3://stack-bucket-for-lambda-practice-go-2020-03/e87a87a195fb3fa4f4804d3a592fed39
       Handler: user/show
       Runtime: go1.x
       Policies: AmazonDynamoDBFullAccess

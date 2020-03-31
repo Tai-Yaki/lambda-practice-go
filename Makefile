@@ -2,13 +2,11 @@ STACK_NAME := stack-bucket-for-lambda-practice-go-2020-03
 TEMPLATE_FILE := template.yaml
 SAM_FILE := sam.yaml
 
-# build: build-login build-user
-# .PHONY: build
-build: build-user
+build: build-login build-user
 .PHONY: build
 
 build-login:
-	GOARCH=amd64 GOOS=linux go build -o artifact/login ./handlers/login/main
+	GOARCH=amd64 GOOS=linux go build -o artifact/login ./handlers/login
 .PHONY: build-login
 
 # build-user: build-user-create build-user-show build-user-index build-user-update build-user-delete
