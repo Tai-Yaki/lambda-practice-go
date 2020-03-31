@@ -9,6 +9,7 @@ import (
 	"github.com/Tai-Yaki/lambda-practice-go/handlers/db"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/pkg/errors"
 	"github.com/rs/xid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,7 +17,7 @@ import (
 type User struct {
 	UserID      string    `json:"user_id"`
 	Name        string    `json:"name"`
-	Email       string    `json:"Email"`
+	Email       string    `json:"email"`
 	Password    string    `json:"password"`
 	CreatedTime time.Time `json:"created_time"`
 	UpdatedTime time.Time `json:"updated_time"`
@@ -24,6 +25,12 @@ type User struct {
 
 type Response struct {
 	User string `json:"user"`
+}
+
+type request struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 var DynamoDB db.DB
@@ -37,15 +44,9 @@ func main() {
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	_, err := parseRequest(request)
-	if err != nil {
-		return response(
-			http.StatusBadRequest,
-			errorResponseBody(err.Error()),
-		), nil
-	}
+	parsedRequest, err := parseRequest(request)
 
-	password_hash, err := bcrypt.GenerateFromPassword([]byte(request.PathParameters["password"]), bcrypt.DefaultCost)
+	password_hash, err := bcrypt.GenerateFromPassword([]byte(parsedRequest.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return response(
 			http.StatusBadRequest,
@@ -55,8 +56,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	user := db.User{
 		UserID:      xid.New().String(),
-		Name:        request.PathParameters["name"],
-		Email:       request.PathParameters["email"],
+		Name:        parsedRequest.Name,
+		Email:       parsedRequest.Email,
 		Password:    string(password_hash),
 		CreatedTime: time.Now().UTC(),
 		UpdatedTime: time.Now().UTC(),
@@ -81,32 +82,26 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	return response(http.StatusOK, body), nil
 }
 
-func parseRequest(req events.APIGatewayProxyRequest) (string, error) {
-	if req.HTTPMethod != http.MethodPost {
-		return "", fmt.Errorf("use POST request")
-	}
-
-	if _, ok := req.PathParameters["Name"]; !ok {
-		return "", fmt.Errorf("parameter error")
-	}
-
-	if _, ok := req.PathParameters["Email"]; !ok {
-		return "", fmt.Errorf("parameter error")
-	}
-
-	if _, ok := req.PathParameters["Password"]; !ok {
-		return "", fmt.Errorf("parameter error")
-	}
-
-	return "", nil
-}
-
 func response(code int, body string) events.APIGatewayProxyResponse {
 	return events.APIGatewayProxyResponse{
 		StatusCode: code,
 		Body:       body,
 		Headers:    map[string]string{"Content-Type": "application/json"},
 	}
+}
+
+func parseRequest(req events.APIGatewayProxyRequest) (*request, error) {
+	if req.HTTPMethod != http.MethodPost {
+		return nil, fmt.Errorf("use POST request")
+	}
+
+	var r request
+	err := json.Unmarshal([]byte(req.Body), &r)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to parse request")
+	}
+
+	return &r, nil
 }
 
 func errorResponseBody(msg string) string {
