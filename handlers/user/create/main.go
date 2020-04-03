@@ -45,6 +45,12 @@ func main() {
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	parsedRequest, err := parseRequest(request)
+	if err != nil {
+		return response(
+			http.StatusBadRequest,
+			errorResponseBody(err.Error()),
+		), nil
+	}
 
 	password_hash, err := bcrypt.GenerateFromPassword([]byte(parsedRequest.Password), bcrypt.DefaultCost)
 	if err != nil {
